@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/adelmoradian/terraformer/internal/blocks"
-	"github.com/adelmoradian/terraformer/internal/module"
+	"github.com/adelmoradian/terraformer/pkg/blocks"
+	"github.com/adelmoradian/terraformer/pkg/module"
 )
 
 func main() {

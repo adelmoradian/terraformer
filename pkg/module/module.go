@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/adelmoradian/terraformer/internal/blocks"
+	"github.com/adelmoradian/terraformer/pkg/blocks"
 )
 
 type tfModule struct {
