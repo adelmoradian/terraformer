@@ -65,6 +65,7 @@ func (x *terraformBlock) String() string {
 				"version": cty.StringVal(provider.version),
 				"source":  cty.StringVal(provider.source)}))
 
+			rootBody.AppendNewline()
 			providerCofigBody := rootBody.AppendNewBlock("provider", []string{provider.name}).Body()
 			for k, v := range provider.cfg {
 				providerCofigBody.SetAttributeValue(k, cty.StringVal(v))
