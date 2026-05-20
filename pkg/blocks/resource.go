@@ -16,18 +16,16 @@ type resourceBlock struct {
 }
 
 func NewResource(resourceType, resourceLabel string) *resourceBlock {
-	return &resourceBlock{hclwrite.NewEmptyFile(), nil, resourceType, resourceLabel}
+	file := hclwrite.NewEmptyFile()
+	body := file.Body()
+	body.AppendNewBlock("resource", []string{resourceType, resourceLabel})
+	return &resourceBlock{file, nil, resourceType, resourceLabel}
 }
 
 func (x *resourceBlock) Add(key string, value any) *resourceBlock {
 	x.keys = append(x.keys, key)
 	body := x.Body()
-	lb := &hclwrite.Block{}
-	if len(body.Blocks()) == 0 {
-		lb = body.AppendNewBlock("resource", []string{x.resourceType, x.resourceLabel})
-	} else {
-		lb = body.Blocks()[0]
-	}
+	lb := body.Blocks()[0]
 	lbBody := lb.Body()
 	lbBody.SetAttributeValue(key, toCtyVal(value))
 	return x
@@ -35,12 +33,7 @@ func (x *resourceBlock) Add(key string, value any) *resourceBlock {
 
 func (x *resourceBlock) AddStatement(key string, value string) *resourceBlock {
 	body := x.Body()
-	lb := &hclwrite.Block{}
-	if len(body.Blocks()) == 0 {
-		lb = body.AppendNewBlock("resource", []string{x.resourceType, x.resourceLabel})
-	} else {
-		lb = body.Blocks()[0]
-	}
+	lb := body.Blocks()[0]
 	lbBody := lb.Body()
 	lbBody.SetAttributeTraversal(key, hcl.Traversal{hcl.TraverseRoot{Name: value}})
 	return x
