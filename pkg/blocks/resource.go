@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/hashicorp/hcl2/hclwrite"
+	"github.com/zclconf/go-cty/cty"
 )
 
 type resourceBlock struct {
@@ -20,6 +21,13 @@ func NewResource(resourceType, resourceLabel string) *resourceBlock {
 	body := file.Body()
 	body.AppendNewBlock("resource", []string{resourceType, resourceLabel})
 	return &resourceBlock{file, nil, resourceType, resourceLabel}
+}
+
+func (x *resourceBlock) WithImport(id string) *resourceBlock {
+	importBlockBody := x.Body().AppendNewBlock("import", nil).Body()
+	importBlockBody.SetAttributeValue("id", cty.StringVal(id))
+	importBlockBody.SetAttributeTraversal("to", hcl.Traversal{hcl.TraverseRoot{Name: x.resourceType}, hcl.TraverseAttr{Name: x.resourceLabel}})
+	return x
 }
 
 func (x *resourceBlock) Add(key string, value any) *resourceBlock {

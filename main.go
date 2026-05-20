@@ -7,14 +7,9 @@ import (
 
 func main() {
 	mainBlock := blocks.NewTerraformBlock(">= 1.9.0, < 2.0.0").
-		AddProvider(blocks.Provider{
-			Name:    "gitlab",
-			Source:  "gitlabhq/gitlab",
-			Version: "~> 18.0"}).
-		AddProvider(blocks.Provider{
-			Name:    "null",
-			Source:  "hashicorp/null",
-			Version: "~> 3.0"}).SetRemoteBackend("http", map[string]string{"foo": "bar"})
+		AddProvider("gitlab", "gitlabhq/gitlab", "~> 18.0", map[string]string{"token": "secret"}).
+		AddProvider("null", "hashicorp/null", "~> 3.0", nil).
+		SetRemoteBackend("http", map[string]string{"foo": "bar"})
 
 	varBlock := blocks.NewVarBlock("test", "this is a test").SetType(`list(object({
     internal = number
@@ -30,6 +25,7 @@ func main() {
 		Add("k5", map[string]any{"a": "bar", "b": "foo"})
 
 	someRes := blocks.NewResource("label", "tag").
+		WithImport("123").
 		Add("k1", "value").
 		Add("k2", 123).
 		Add("k3", false).

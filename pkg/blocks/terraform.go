@@ -7,13 +7,16 @@ import (
 
 type terraformBlock struct {
 	requiredVersion   string
-	requiredProviders []Provider
+	requiredProviders []provider
 	remoteBackend     remoteBackendConfig
 	experiments       []string
 }
 
-type Provider struct {
-	Name, Source, Version string
+type provider struct {
+	name    string
+	source  string
+	version string
+	cfg     map[string]string
 }
 
 type remoteBackendConfig struct {
@@ -25,8 +28,13 @@ func NewTerraformBlock(requiredVersion string, experimental ...string) *terrafor
 	return &terraformBlock{requiredVersion: requiredVersion, experiments: experimental}
 }
 
-func (x *terraformBlock) AddProvider(p Provider) *terraformBlock {
-	x.requiredProviders = append(x.requiredProviders, p)
+func (x *terraformBlock) AddProvider(name, source, version string, config map[string]string) *terraformBlock {
+	x.requiredProviders = append(x.requiredProviders, provider{
+		name:    name,
+		source:  source,
+		version: version,
+		cfg:     config,
+	})
 	return x
 }
 
@@ -53,13 +61,13 @@ func (x *terraformBlock) String() string {
 		providerBlock := tfBlockBody.AppendNewBlock("required_providers", nil)
 		providerBody := providerBlock.Body()
 		for _, provider := range x.requiredProviders {
-			block := providerBody.AppendNewBlock(provider.Name, nil)
-			body := block.Body()
-			if provider.Version != "" {
-				body.SetAttributeValue("version", cty.StringVal(provider.Version))
-			}
-			if provider.Source != "" {
-				body.SetAttributeValue("source", cty.StringVal(provider.Source))
+			providerBody.SetAttributeValue(provider.name, cty.MapVal(map[string]cty.Value{
+				"version": cty.StringVal(provider.version),
+				"source":  cty.StringVal(provider.source)}))
+
+			providerCofigBody := rootBody.AppendNewBlock("provider", []string{provider.name}).Body()
+			for k, v := range provider.cfg {
+				providerCofigBody.SetAttributeValue(k, cty.StringVal(v))
 			}
 		}
 	}
