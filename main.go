@@ -30,7 +30,7 @@ func main() {
 		Add("k2", 123).
 		Add("k3", false).
 		Add("k4", []any{1, 2.1}).
-		Add("k5", map[string]any{"a": "bar", "b": "foo"})
+		Add("k5", map[string]any{"a": "bar", "b": "foo"}).IngoreChanges("k1", "k2")
 
 	someBlock.AddStatement("k6", someBlock.KeyRef("k4")+"[1]")
 	module.New("./modules").AddFile("main.tf", mainBlock, varBlock, someBlock, someRes).Create()

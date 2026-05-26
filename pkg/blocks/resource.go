@@ -2,6 +2,7 @@ package blocks
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/hashicorp/hcl2/hclwrite"
@@ -53,6 +54,13 @@ func (x *resourceBlock) ForEach(m string) *resourceBlock {
 
 func (x *resourceBlock) Self() string {
 	return fmt.Sprintf("%s.%s", x.resourceType, x.resourceLabel)
+}
+
+func (x *resourceBlock) IngoreChanges(attributes ...string) *resourceBlock {
+	joined := strings.Join(attributes, ", ")
+	lifecycleBody := x.Body().Blocks()[0].Body().AppendNewBlock("lifecycle", nil).Body()
+	lifecycleBody.SetAttributeTraversal("ignore_changes", hcl.Traversal{hcl.TraverseRoot{Name: fmt.Sprintf("[ %s ]", joined)}})
+	return x
 }
 
 func (x *resourceBlock) Type() string {
