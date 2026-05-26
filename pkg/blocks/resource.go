@@ -2,7 +2,6 @@ package blocks
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/hashicorp/hcl2/hclwrite"
@@ -47,15 +46,13 @@ func (x *resourceBlock) AddStatement(key string, value string) *resourceBlock {
 	return x
 }
 
-func (x *resourceBlock) KeyRef(k string) string {
-	for _, key := range x.keys {
-		if key == k {
-			return "local." + key
-		}
-	}
-	fmt.Println("could not find key", k)
-	os.Exit(1)
-	return ""
+func (x *resourceBlock) ForEach(m string) *resourceBlock {
+	x.AddStatement("for_each", m)
+	return x
+}
+
+func (x *resourceBlock) Self() string {
+	return fmt.Sprintf("%s.%s", x.resourceType, x.resourceLabel)
 }
 
 func (x *resourceBlock) Type() string {
